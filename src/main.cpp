@@ -6,9 +6,14 @@
 #include <numeric>
 #include <algorithm> 
 
+struct DataPoint {
+    std::string datetime; // example 20250106T1200
+    double value; // example 12.600245
+};
+
 // Reads the temperature (second column) from a CSV file
-std::vector<double> read_csv_temp(const std::string& filename) {
-    std::vector<double> temperatures; 
+std::vector<DataPoint> read_csv(const std::string& filename) {
+    std::vector<DataPoint> data; 
     std::ifstream file(filename);
 
     if (!file.is_open()) {
@@ -28,19 +33,22 @@ std::vector<double> read_csv_temp(const std::string& filename) {
 
     while (std::getline(file, line)) {
         std::stringstream ss(line);
-        std::string date, value_str; 
+        std::string datetime, value_str; 
 
-        std::getline(ss, date, ','); // date
+        std::getline(ss, datetime, ','); // datetime
         std::getline(ss, value_str, ','); // temperature 
 
         try {
-            temperatures.push_back(std::stod(value_str));
+
+            double value = std::stod(value_str); // string to double 
+            data.push_back({datetime, value});
+
         } catch (...) {
             // skip invalid lines
         }
     }
 
-    return temperatures; 
+    return data;
 }
 
 int main(int argc, char* argv[] ) {
@@ -54,8 +62,14 @@ int main(int argc, char* argv[] ) {
     }
 
     try {
-        auto temperatures = read_csv_temp(argv[1]);
+        auto data = read_csv(argv[1]);
 
+        // extract the temperature data to do statistics
+        std::vector<double> temperatures;
+        for (const auto& dp : data) {
+            temperatures.push_back(dp.value);
+        }
+        
         double mean = std::accumulate(temperatures.begin(), temperatures.end(), 0.0) / temperatures.size();
         auto [min_it, max_it] = std::minmax_element(temperatures.begin(), temperatures.end());
         // min_it and max_it are the iterators that point at the elements
