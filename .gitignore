@@ -4,6 +4,7 @@
 build/
 cmake-build-*/
 *.o
+timeseries
 *.obj
 *.exe
 *.out
