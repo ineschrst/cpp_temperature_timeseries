@@ -64,12 +64,21 @@ int main(int argc, char* argv[] ) {
     try {
         auto data = read_csv(argv[1]);
 
+        int n = 3; // how many first and last entries to print
+
+        for (int i = 0; i < data.size() && i < n; ++i) {
+            std::cout << data[i].datetime << " -> " << data[i].value << "\n";
+        }
+        for (int i = (data.size() > n ? data.size() - n : 0); i < data.size(); ++i) {
+            std::cout << data[i].datetime << " -> " << data[i].value << "\n";
+        }
+
         // extract the temperature data to do statistics
         std::vector<double> temperatures;
         for (const auto& dp : data) {
             temperatures.push_back(dp.value);
         }
-        
+
         double mean = std::accumulate(temperatures.begin(), temperatures.end(), 0.0) / temperatures.size();
         auto [min_it, max_it] = std::minmax_element(temperatures.begin(), temperatures.end());
         // min_it and max_it are the iterators that point at the elements
